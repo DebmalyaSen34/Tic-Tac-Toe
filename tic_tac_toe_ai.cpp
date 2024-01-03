@@ -7,7 +7,7 @@ map<vector<int>, int> com_rows, com_columns;
 map<vector<int>, int> mp_dia;
 map<vector<int>, int> com_dia;
 
-void return_empty_space_row(int row){
+bool return_empty_space_row(int row){
     for(int i=0; i<3; i++){
         if(computer_matrix[row][i]==0){
             computer_matrix[row][i] = 1;
@@ -19,13 +19,14 @@ void return_empty_space_row(int row){
                 com_dia[{0, 1}]++;
             }else if(row==i) com_dia[{0, 0}]++;
             else if((row+i)%2==0 and row!=i) com_dia[{0, 1}]++;
+            mp_rows[{1, row}]=0;
+            return true;
         }
-        mp_rows[{1, row}]=0;
     }
-    return;
+    return false;
 }
 
-void return_empty_space_column(int col){
+bool return_empty_space_column(int col){
     for(int i=0; i<3; i++){
         if(computer_matrix[i][col]==0){
             computer_matrix[i][col] = 1;
@@ -37,9 +38,11 @@ void return_empty_space_column(int col){
                 com_dia[{0, 1}]++;
             }else if(col==i) com_dia[{0, 0}]++;
             else if((col+i)%2==0 and col!=i) com_dia[{0, 1}]++;
+            mp_columns[{1, col}] = 0;
+            return true;
         }
-        mp_columns[{1, col}] = 0;
     }
+    return false;
 }
 
 int check_for_win_rows(){
@@ -143,14 +146,74 @@ void defend_algo(){
 
     for(int i=0; i<3; i++){
         if(mp_rows[{1, i}]==2){
-            return_empty_space_row(i);
-            return;
+            if(return_empty_space_row(i)){
+                return;
+            }
         }
     } 
 
     for(int i=0; i<3; i++){
         if(mp_columns[{1, i}]==2){
-            return_empty_space_column(i);
+            if(return_empty_space_column(i)){
+                return;
+            }
+        }
+    }
+
+    if(mp_dia[{0, 0}]==2){
+        if(computer_matrix[0][0]==0){
+            computer_matrix[0][0] = 1;
+            com_dia[{0, 0}]++;
+            com_columns[{0, 0}]++;
+            com_rows[{0, 0}]++;
+            player_matrix[0][0] = 'O';
+            mp_dia[{0, 0}] = 0;
+            return;
+        }else if(computer_matrix[1][1]==0){
+            computer_matrix[1][1] = 1;
+            com_dia[{0, 0}]++;
+            com_dia[{0, 1}]++;
+            com_columns[{0, 1}]++;
+            com_rows[{0, 1}]++;
+            player_matrix[1][1] = 'O';
+            mp_dia[{0, 0}] = 0;
+            return;
+        }else if(computer_matrix[2][2]==0){
+            computer_matrix[2][2] = 1;
+            com_dia[{0, 0}]++;
+            com_columns[{0, 2}]++;
+            com_rows[{0, 2}]++;
+            player_matrix[2][2] = 'O';
+            mp_dia[{0, 0}] = 0;
+            return;
+        }
+    }
+
+    if(mp_dia[{0, 1}]==2){
+        if(computer_matrix[0][2]==0){
+            computer_matrix[0][2] = 1;
+            com_dia[{0, 1}]++;
+            com_columns[{0, 2}]++;
+            com_rows[{0, 0}]++;
+            player_matrix[0][2] = 'O';
+            mp_dia[{0, 1}] = 0;
+            return;
+        }else if(computer_matrix[1][1]==0){
+            computer_matrix[1][1] = 1;
+            com_dia[{0, 0}]++;
+            com_dia[{0, 1}]++;
+            com_columns[{0, 1}]++;
+            com_rows[{0, 1}]++;
+            player_matrix[1][1] = 'O';
+            mp_dia[{0, 1}] = 0;
+            return;
+        }else if(computer_matrix[2][0]==0){
+            computer_matrix[2][0] = 1;
+            com_dia[{0, 1}]++;
+            com_columns[{0, 0}]++;
+            com_rows[{0, 2}]++;
+            player_matrix[2][0] = 'O';
+            mp_dia[{0, 1}] = 0;
             return;
         }
     }
@@ -264,7 +327,7 @@ void print(){
 
 bool if_won_player(){
     for(int i=0; i<3; i++){
-        if(mp_columns[{1, i}]==3 or mp_rows[{1, i}]==3 or mp_dia[{1, i}]==3){
+        if(mp_columns[{1, i}]==3 or mp_rows[{1, i}]==3 or mp_dia[{0, i}]==3){
             return true;
         }
     }
@@ -285,8 +348,9 @@ int main(){
     int first_step=1;
     print();
     cout<<"Use 1-indexed co-ordiantes."<<endl;
+    cout<<"You are 'X'"<<endl;
     while(x){
-        if(first_step==8){
+        if(first_step==6){
             cout<<"DRAW!"<<endl;
             break;
         }
@@ -299,9 +363,11 @@ int main(){
         if(row==2 and col==2){
             mp_dia[{0, 0}]++;
             mp_dia[{0, 1}]++;
+        }else if((row+col)%2==0 and row==col){
+            mp_dia[{0, 0}]++;
+        }else if((row+col)%2==0 and row!=col){
+            mp_dia[{0, 1}]++;
         }
-        else if((row+col)%2==0 and row==col) mp_dia[{0, 0}]++;
-        else if((row+col)%2==0 and row!=col) mp_dia[{0, 1}]++;
         if(first_step==1){
             first_move(row-1, col-1);
         }else{
@@ -319,4 +385,3 @@ int main(){
     }
     return 0;
 }
-
